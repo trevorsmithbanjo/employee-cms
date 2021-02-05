@@ -8,7 +8,7 @@ const connection = mysql.createConnection({
     host: 'localhost',
     port: 3306,
     user: 'root',
-    password: '',
+    password: '85716',
     database: 'employee_cmsDB',
 });
 
@@ -102,60 +102,113 @@ const veiwAllRoles = () => {
 }
 
 const addEmployee = () => {
+    let roleArr = [];
+    connection.query('SELECT title FROM role', (err, results) => {
+        if (err) throw err;
+        results.forEach(({ title }) => {
+            return roleArr.push(title);
+        });
+        inquirer
+            .prompt([
+                {
+                    name: 'roleID',
+                    type: 'list',
+                    choices: roleArr,
+                    message: 'Select employee role'
+                },
+                {
+                    name: 'firstName',
+                    type: 'input',
+                    message: 'Enter employees first name'
+                },
+                {
+                    name: 'lastName',
+                    type: 'input',
+                    message: 'Enter employees last name'
+                },
+            ])
+            .then((data) => {
+                const roleID = roleArr.indexOf(data.roleID) + 1;
+                connection.query('INSERT INTO employee SET ?',
+                    {
+                        first_name: data.firstName,
+                        last_name: data.lastName,
+                        role_id: roleID,
+                    },
+                    (err) => {
+                        if (err) throw err;
+                        initApp();
+                    }
+                )
+            })
+    })
+}
+
+const addDepartment = () => {
     inquirer
         .prompt([
             {
-                name: 'firstName',
+                name: 'department',
                 type: 'input',
-                message: 'What is the employees first name?'
-            },
-            {
-                name: 'lastName',
-                type: 'input',
-                message: 'What is the employees last name?'
+                message: 'Enter the department name.'
             }
         ])
         .then((data) => {
-            connection.query('INSERT INTO employee SET ?',
-                {
-                    first_name: data.firstName,
-                    last_name: data.lastName,
-                },
-                (err) => {
-                    if (err) throw err;
-                    connection.query('SELECT title FROM role', (err, result) => {
-                        if (err) throw err;
-                        inquirer
-                            .prompt([
-                                {
-                                    name: 'role',
-                                    type: 'list',
-                                    choices() {
-                                        const choiceArr = [];
-                                        result.forEach(({ title }) => {
-                                            choiceArr.push(title);
-                                        });
-                                        return choiceArr;
-                                    },
-                                    message: 'What is the employees role?',
-                                }
-                            ])
-                            .then((data) => {
-                                connection.query('INSERT INTO role SET ?',
-                                    {
-                                        title: data.title
-                                    },
-                                    (err) => {
-                                        if (err) throw err;
-                                        initApp();
-                                    }
-                                );
-                            })
-                    })
-                });
-        });
+            connection.query('INSERT INTO department SET ?', { department: data.department }, (err) => {
+                if (err) throw err;
+                console.log(`${data.department} department entered successfully.`);
+                initApp();
+            })
+        })
 }
 
+const addRole = () => {
+    let departmentArr = [];
+    connection.query('SELECT department FROM department', (err, results) => {
+        if (err) throw err;
+        results.forEach(({ department }) => {
+            return departmentArr.push(department);
+        });
+        inquirer
+            .prompt([
+                {
+                    name: 'roleID',
+                    type: 'list',
+                    choices: departmentArr,
+                    message: 'Selector department for new role'
+                },
+                {
+                    name: 'title',
+                    type: 'input',
+                    message: 'Enter title for role'
+                },
+                {
+                    name: 'salary',
+                    type: 'input',
+                    message: 'Enter salary for role',
+                    validate(value) {
+                        if (isNaN(value) === false) {
+                            return true;
+                        }
+                        return false;
+                    },
+                },
+            ])
+            .then((data) => {
+                const departmentID = departmentArr.indexOf(data.roleID) + 1;
+                console.log(departmentID);
+                connection.query('INSERT INTO role SET ?', {
+                    title: data.title,
+                    salary: data.salary,
+                    department_id: departmentID,
+                },
+                    (err) => {
+                        if (err) throw err;
+                        initApp();
+                    })
+            })
+    });
+}
 
 // connect to the mysql server and sql database
 connection.connect((err) => {
