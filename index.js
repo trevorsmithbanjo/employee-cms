@@ -210,6 +210,47 @@ const addRole = () => {
     });
 }
 
+const updateRole = () => {
+    let employeeArr = [];
+    let roleArr = [];
+    connection.query('SELECT first_name, last_name FROM employee', (err, results) => {
+        if (err) throw err;
+        results.forEach(({ first_name, last_name }) => {
+            return employeeArr.push(`${first_name} ${last_name}`);
+        })
+        connection.query('SELECT title FROM role', (err, newResults) => {
+            if (err) throw err;
+            newResults.forEach(({ title }) => {
+                return roleArr.push(title);
+            })
+            inquirer
+                .prompt([
+                    {
+                        name: 'employeeID',
+                        type: 'list',
+                        choices: employeeArr,
+                        message: 'Select employee to update'
+                    },
+                    {
+                        name: 'roleID',
+                        type: 'list',
+                        choices: roleArr,
+                        message: 'Select new role'
+                    },
+                ])
+                .then((data) => {
+                    const employeeID = employeeArr.indexOf(data.employeeID) + 1;
+                    const roleID = roleArr.indexOf(data.roleID) + 1;
+                    connection.query('UPDATE employee SET role_id = ? where id = ?', [employeeID, roleID], (err) => {
+                        if (err) throw err;
+                        console.log(`${data.employeeID} role successfully updated.`);
+                        initApp();
+                    });
+                })
+        })
+    })
+};
+
 // connect to the mysql server and sql database
 connection.connect((err) => {
     if (err) throw err;
