@@ -1,0 +1,25 @@
+{
+  "name": "employee-cms",
+  "version": "1.0.0",
+  "description": "This is a CMS for parsing an Employee Database.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trevorsmithbanjo/employee-cms.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/trevorsmithbanjo/employee-cms/issues"
+  },
+  "homepage": "https://github.com/trevorsmithbanjo/employee-cms#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^7.3.3",
+    "mysql": "^2.18.1"
+  }
+}
