@@ -71,10 +71,11 @@ const initApp = () => {
 
 const veiwAll = () => {
     const employees = [];
-    connection.query('SELECT employee.id, first_name, last_name, title, salary, department FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id ORDER BY employee.id ASC;', (err, res) => {
-        res.forEach(({ id, first_name, last_name, title, salary, department }) => {
+    connection.query('SELECT employee.id, first_name, last_name, title, salary, department, role_id, manager_id FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id ORDER BY employee.id ASC;', (err, res) => {
+        res.forEach(({ id, first_name, last_name, title, salary, department, role_id, manager_id }) => {
             if (err) throw err;
-            employees.push({ id, first_name, last_name, title, salary, department });
+            let manager = manager_id;
+            employees.push({ id, first_name, last_name, title, salary, department, manager });
         });
         console.table(employees);
         initApp();
@@ -250,6 +251,7 @@ const updateRole = () => {
         })
     })
 };
+
 
 // connect to the mysql server and sql database
 connection.connect((err) => {
